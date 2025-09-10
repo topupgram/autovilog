@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Formulir Pembelian Robux VILOG</title>
+<style>
+  :root{
+    --accent:#8296AD;
+    --muted:#C9DBF0;
+    --wa:#25D366;
+    --tg:#0088cc;
+  }
+  body{
+    font-family:Roboto,Arial,sans-serif;
+    background:#f4f6f8;
+    padding:0px;
+    margin:0;
+  }
+  .card{
+    max-width:480px;
+    margin:auto;
+    padding:3px;
+    border-radius:12px;
+    background:#fff;
+    border:2px solid var(--accent);
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+  }
+  h2{
+    margin:0 0 16px 0;
+    text-align:center;
+    background:var(--muted);
+    padding:12px;
+    border-radius:8px;
+    font-size:14px;
+  }
+  label{display:block;margin:8px 0 4px 0;font-size:13px;font-weight:500;}
+  .form-input,.form-select,.form-textarea{
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:12px;
+    box-sizing:border-box;
+  }
+  .form-input:focus,.form-select:focus,.form-textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 4px rgba(130,150,173,0.4);
+  }
+  .btn-row{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+  }
+  .btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+  }
+  .btn-wa{background:var(--wa);color:#fff}
+  .btn-tg{background:var(--tg);color:#fff}
+  .btn-wa, .btn-tg {
+    display: none;
+  }
+  .btn-process {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Popup */
+  #popupPreview{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.6);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+  }
+  #popupCard{
+    background:#fff;
+    padding:16px;
+    border-radius:12px;
+    max-width:420px;
+    width:100%;
+  }
+  pre#previewText{
+    white-space:pre-wrap;
+    background:#f9f9f9;
+    padding:10px;
+    border:1px dashed var(--accent);
+    border-radius:8px;
+    font-size:13px;
+    max-height:160px;
+    overflow:auto;
+    margin-bottom:12px;
+  }
+  .small-muted{font-size:12px;color:#555}
+  .qris-box, #totalBayarInfo, #bukti, #confirmBtn {
+    display: none;
+  }
+
+  /* Responsive untuk layar kecil */
+  @media(max-width:600px){
+    .card{padding:12px}
+    .btn-row{flex-direction:column;}
+    .btn{width:100%;}
+    #popupCard{padding:14px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Formulir Pembelian Robux VILOG</h2>
+
+  <label>Nama / Inisial: *</label>
+  <input id="nama" class="form-input" type="text">
+
+  <label>Username Roblox: *</label>
+  <input id="roblox_user" class="form-input" type="text">
+
+  <label>Password Roblox: *</label>
+  <input id="roblox_pass" class="form-input" type="password">
+
+  <label>Verifikasi 2 Langkah (V2L): *</label>
+  <select id="v2l" class="form-select" onchange="toggleBackup()">
+    <option value="">-- Pilih --</option>
+    <option value="OFF">OFF</option>
+    <option value="ON">ON</option>
+  </select>
+
+  <div id="backup_wrap" style="display:none;">
+    <label>Backup Codes (jika V2L ON): *</label>
+    <textarea id="backup" rows="2" class="form-textarea" placeholder="Pastikan backup code yang dimasukkan belum digunakan"></textarea>
+  </div>
+
+  <label>Kategori Robux: *</label>
+  <select id="kategori" class="form-select" onchange="populateNominal()">
+    <option value="">-- Pilih Kategori --</option>
+    <option value="reguler">Robux Reguler</option>
+    <option value="special">Robux Special</option>
+  </select>
+
+  <label>Jumlah Order: *</label>
+  <select id="jumlah" class="form-select"></select>
+
+  <label>Metode Pembayaran: *</label>
+  <select id="bayar" class="form-select">
+    <option value="">-- Pilih Metode --</option>
+    <option>DANA</option>
+    <option>GoPay</option>
+    <option>ShopeePay</option>
+    <option>Seabank</option>
+    <option>QRIS All Payment</option>
+  </select>
+
+  <div id="tg_user_wrap" style="display:none;">
+    <label>Username Telegram (wajib jika order via Telegram):</label>
+    <input id="tg_user" class="form-input" type="text" placeholder="@username">
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-process" onclick="processOrder()">Proses Pesanan</button>
+  </div>
+</div>
+
+<div id="popupPreview">
+  <div id="popupCard">
+    <h3 style="margin-top:0;text-align:center">Detail Pesanan</h3>
+    <pre id="previewText"></pre>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button onclick="closePreview()" class="btn" style="background:#ccc;flex:1">Tutup</button>
+      <button id="paymentBtn" class="btn" style="background:#4CAF50;color:#fff;flex:1">Lanjut ke Pembayaran</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* CONFIG */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzUkPnz8WbtIy3wrN4NyAwS5PH0TWZC3vzMkk_CcKUAtxt6EfrxqyF3OJO8aYnZeSWxw/exec";
+
+/* PRICE LIST */
+const priceReguler = {
+ "80 Robux":16000,"160 Robux":32000,"240 Robux":44500,"320 Robux":58000,"400 Robux":70000,
+ "480 Robux":85500,"560 Robux":102000,"640 Robux":114500,"720 Robux":128000,"800 Robux":139000,
+ "1700 Robux":278000,"2100 Robux":347000,"2500 Robux":416000,"3400 Robux":560000,"4500 Robux":698000,
+ "10000 Robux":1390000,"22500 Robux":2780000
+};
+const priceSpecial = {
+  "450 Robux + Premium":75000,"1000 Robux + Premium":150000,"500 Robux":75000,"1000 Robux":150000,"1500 Robux":225000,
+  "2000 Robux":298000,"2500 Robux":372500,"3000 Robux":447000,"4500 Robux":698000
+};
+
+/* Populate dropdown nominal */
+function populateNominal(){
+  const sel = document.getElementById('jumlah');
+  sel.innerHTML = '<option value="">-- Pilih Nominal --</option>';
+  const kat = document.getElementById('kategori').value;
+  const list = (kat==='reguler')?priceReguler:(kat==='special')?priceSpecial:{};
+  Object.keys(list).forEach(k=>{
+    const opt=document.createElement('option');
+    opt.value=k; opt.text=`${k} — Rp ${numberWithDots(list[k])}`;
+    sel.appendChild(opt);
+  });
+}
+function numberWithDots(x){return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");}
+function toggleBackup(){document.getElementById('backup_wrap').style.display=(document.getElementById('v2l').value==="ON")?"block":"none";}
+
+// Fungsi utama untuk memproses pesanan
+async function processOrder(){
+  const nama = document.getElementById('nama').value.trim();
+  const ru = document.getElementById('roblox_user').value.trim();
+  const rp = document.getElementById('roblox_pass').value.trim();
+  const v2l = document.getElementById('v2l').value;
+  const backup = document.getElementById('backup').value.trim();
+  const kategori = document.getElementById('kategori').value;
+  const jumlah = document.getElementById('jumlah').value;
+  const bayar = document.getElementById('bayar').value;
+
+  // Validasi ketat
+  if(!nama||!ru||!rp||!v2l||!kategori||!jumlah||!bayar){
+    alert("Semua field wajib diisi.");
+    return;
+  }
+  if(v2l==="ON"&&!backup){
+    alert("Backup Codes wajib diisi jika V2L ON.");
+    return;
+  }
+  
+  const orderData = { nama, roblox_user: ru, roblox_pass: rp, v2l, backup, kategori, jumlah, bayar };
+
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      const harga = (kategori==='reguler') ? priceReguler[jumlah] : priceSpecial[jumlah];
+      const hargaText = harga ? `Rp ${numberWithDots(harga)}` : "Rp -";
+      
+      const lines = [
+        `Nama: ${nama}`,
+        `Username Roblox: ${ru}`,
+        `Jumlah Order: ${jumlah}`,
+        `Total Bayar: ${hargaText}`,
+        `Metode Bayar: ${bayar}`,
+      ];
+
+      document.getElementById('previewText').innerText = lines.join("\n");
+      document.getElementById('paymentBtn').onclick = () => window.open(result.checkout_url, '_blank');
+      document.getElementById('popupPreview').style.display='flex';
+    } else {
+      alert(`Gagal membuat pesanan: ${result.message}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert("Terjadi kesalahan, mohon coba lagi.");
+  }
+}
+
+function closePreview(){
+  document.getElementById('popupPreview').style.display='none';
+}
+</script>
+</body>
+</html>
