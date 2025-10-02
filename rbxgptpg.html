@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulir Pembelian Robux Via Gamepass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #C9DBF0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .note {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+    .pricelist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .price-btn {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      flex: 0 1 calc(33.33% - 10px);
+      text-align: center;
+      font-size: 14px;
+      transition: 0.2s;
+      white-space: pre-line;
+    }
+    .price-btn:hover {
+      background: #d8e6f3;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .submit-btn {
+      display: block;
+      width: 100%;
+      background: #25D366;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .submit-btn:hover {
+      background: #1ebd5a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Formulir Pembelian Robux Via Gamepass</h2>
+    <div class="note">(Delay 5-7 hari setelah pembelian)</div>
+
+    <!-- Pricelist -->
+    <div class="pricelist" id="pricelist"></div>
+
+    <!-- Form -->
+    <form id="orderForm">
+      <div class="form-group">
+        <label for="nama">Nama Pembeli</label>
+        <input type="text" id="nama" name="nama" required>
+      </div>
+      <div class="form-group">
+        <label for="username">Username Roblox</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="nominal">Nominal Robux</label>
+        <input type="text" id="nominal" name="nominal" readonly>
+      </div>
+      <div class="form-group">
+        <label for="harga">Harga</label>
+        <input type="text" id="harga" name="harga" readonly>
+      </div>
+      <button type="submit" class="submit-btn">Kirim Pesanan via WhatsApp</button>
+    </form>
+  </div>
+
+  <script>
+    const pricelist = document.getElementById("pricelist");
+    const nominalInput = document.getElementById("nominal");
+    const hargaInput = document.getElementById("harga");
+
+    // Generate pricelist 100 - 1000 robux
+    for (let i = 100; i <= 1000; i += 100) {
+      const harga = i * 135;
+      const btn = document.createElement("div");
+      btn.className = "price-btn";
+      btn.innerText = `${i} Robux\nRp${harga.toLocaleString("id-ID")}`;
+      btn.onclick = () => {
+        nominalInput.value = i + " Robux";
+        hargaInput.value = "Rp" + harga.toLocaleString("id-ID");
+      };
+      pricelist.appendChild(btn);
+    }
+
+    // Submit to WhatsApp
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const nama = document.getElementById("nama").value;
+      const username = document.getElementById("username").value;
+      const nominal = nominalInput.value;
+      const harga = hargaInput.value;
+
+      if (!nominal || !harga) {
+        alert("Silakan pilih nominal Robux terlebih dahulu!");
+        return;
+      }
+
+      const pesan = `Halo, saya ingin pesan Robux Via Gamepass:%0A
+Nama: ${nama}%0A
+Username Roblox: ${username}%0A
+Nominal: ${nominal}%0A
+Harga: ${harga}%0A
+Terima kasih.`;
+
+      const waUrl = `https://wa.me/6283197962700?text=${pesan}`;
+      window.open(waUrl, "_blank");
+    });
+  </script>
+</body>
+</html
